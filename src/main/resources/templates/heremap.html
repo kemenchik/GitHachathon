@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/apple-icon.png">
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"
+    />
+    <script
+            type="text/javascript"
+            src="https://js.api.here.com/v3/3.1/mapsjs-core.js"
+    ></script>
+    <script
+            type="text/javascript"
+            src="https://js.api.here.com/v3/3.1/mapsjs-service.js"
+    ></script>
+    <script
+            type="text/javascript"
+            src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"
+    ></script>
+    <script
+            type="text/javascript"
+            src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"
+    ></script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="main.js"></script>
+    <title>Search machine</title>
+    <link
+            href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+            rel="stylesheet"
+    />
+    <style>
+      li:hover {
+        background-color: yellowgreen;
+      }
+      #list {
+        cursor: pointer;
+      }
+      .fa-search-custom {
+        position: absolute;
+        left: 375px;
+        top: 123px;
+        z-index: 99999;
+      }
+    </style>
+</head>
+<body>
+
+<div
+        style="height: 100vh; width: 100vw;"
+        id="mapContainer"
+        class="container-1"
+>
+    <input
+
+            placeholder="Введи адресс"
+            type="text"
+            name="search"
+            id="search"
+            value="Moscow"
+            onkeydown="autosuggest(this)"
+            autofocus
+    />
+
+    <button type="button" id="bt" onclick="getLocation()" class="btn btn-info btn-lg">Зафиксировать мое местоположение</button>
+
+    <button type="button" id="butt" onclick="deleteAll()" class="btn btn-danger btn-lg">Очистить маркеры и линии</button>
+    <button type="button" id="butto" onclick="deleteLast()" class="btn btn-danger btn-lg">Очистить последний маркер</button>
+    <p id="demo" ></p>
+
+    <div class="dropdown">
+        <ul id="list"></ul>
+    </div>
+
+    <div
+            id="infoBox"
+            style="
+          display: block;
+          top: 10px;
+          z-index: 15;
+          right: 10px;
+          position: absolute;
+          box-sizing: border-box;
+        "
+
+    >
+        <div
+                style="
+            width: 18rem;
+            color: #fff !important;
+            margin-bottom: 1rem !important;
+            background-color: #343a40 !important;
+          "
+        >
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var lat=55.9825;
+    var lng=37.1813;
+    var last = new H.map.Marker({ lat, lng });
+    var x = document.getElementById("demo");
+
+function getLocation() {
+  if (navigator.geolocation) {
+   navigator.geolocation.getCurrentPosition(showPosition,showError);
+   console.log(x.innerHTML);
+  } else {
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+
+function showPosition(position) {
+  x.innerHTML = "Latitude: " + position.coords.latitude +
+  "<br>Longitude: " + position.coords.longitude;
+  title="Ваше местоположение";
+   addMarkerToMap(position.coords.latitude, position.coords.longitude, title);
+}
+
+
+function showError(error) {
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      x.innerHTML = "User denied the request for Geolocation."
+      break;
+    case error.POSITION_UNAVAILABLE:
+      x.innerHTML = "Location information is unavailable."
+      break;
+    case error.TIMEOUT:
+      x.innerHTML = "The request to get user location timed out."
+      break;
+    case error.UNKNOWN_ERROR:
+      x.innerHTML = "An unknown error occurred."
+      break;
+  }
+}
+
+    var platform = new H.service.Platform({
+      apikey: window.apikey,
+    });
+    var defaultLayers = platform.createDefaultLayers();
+
+
+    var map = new H.Map(
+      document.getElementById("mapContainer"),
+      defaultLayers.vector.normal.map,
+      {
+        center: { lat: 50, lng: 5 },
+        zoom: 4,
+        pixelRatio: window.devicePixelRatio || 1,
+      }
+    );
+
+    window.addEventListener("resize", () => map.getViewPort().resize());
+
+    var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+    var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+    window.onload = function () {
+      getDefaultLocation();
+    }
+
+    const autosuggest = (e) => {
+      console.log(e.metaKey,"metakey")
+     if(event.metaKey){
+       console.log(event.metaKey,"metakey inside")
+       return
+     }
+
+        let searchString = e.value
+            if (searchString != "") {
+            fetch
+                (`https://autosuggest.search.hereapi.com/v1/autosuggest?apiKey=${window.apikey}&at=33.738045,73.084488&limit=5&resultType=locality&q=${searchString}&lang=en-US`)
+                .then((res) => res.json())
+                .then((json) => {
+                    if (json.length != 0) {
+                document.getElementById("list").innerHTML = ``;
+                //console.log(json.items);
+                let dropData = json.items.map((item) => {
+
+                    if ((item.position != undefined) & (item.position != ""))
+                    document.getElementById(
+                    "list"
+                    ).innerHTML += `<li onClick="addMarkerToMap(${item.position.lat},${item.position.lng},'${item.title}')">${item.title}</li>`;
+
+                });
+                }
+              });
+             }
+        };
+
+
+    function getDefaultLocation(){
+      lat=55.9825;
+      lng=37.1813;
+      var title = "Zelenograd";
+      addMarkerToMap(lat, lng, title);
+    }
+
+    function deleteAll()
+    {
+    map.removeObjects(map.getObjects());
+    strip.removePointer
+    line
+    }
+
+    function deleteLast(){
+    strip.removePoint(strip.getPointCount());
+    strip.removePoint(strip.getPointCount()+1);
+    strip.removePoint(strip.getPointCount()-1);
+    map.removeObject(last);
+    map.removeObject(lastLine);
+    preLast = last;
+    }
+
+var line;
+
+var lastLine;
+var preLast;
+var pointers = [];
+for (var i =0 ; i<pointers.size; i++)
+      console.log(pointers[i]);
+
+var strip = new H.geo.LineString();
+strip.pushPoint({lat:55.9825, lng:37.1813});
+
+
+    const addMarkerToMap = (lat, lng, title) => {
+
+      preLast = lastLine;
+      document.getElementById("search").value =  title;
+      var selectedLocationMarker = new H.map.Marker({ lat, lng });
+      pointers.push(selectedLocationMarker);
+      strip.pushPoint({lat, lng});
+      line = new this.H.map.Polyline(
+      strip, { style: { lineWidth: 4 } });
+      lastLine = line;
+      map.addObject(lastLine);
+      map.addObject(selectedLocationMarker);
+      last = selectedLocationMarker;
+      map.setCenter({ lat, lng }, true);
+    };
+
+  </script>
+</body>
+</html>

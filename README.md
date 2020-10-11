@@ -1,1 +1,1 @@
-# GitHachathon
+# hackathon
