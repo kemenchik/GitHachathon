@@ -53,6 +53,8 @@
 </head>
 <body>
 
+
+
 <div
         style="height: 100vh; width: 100vw;"
         id="mapContainer"
@@ -68,11 +70,17 @@
             onkeydown="autosuggest(this)"
             autofocus
     />
+    <div id="bt" class="btn-group-vertical">
+        <button type="button"  onclick="getLocation()" class="btn btn-warning btn-lg">Зафиксировать мое местоположение</button>
 
-    <button type="button" id="bt" onclick="getLocation()" class="btn btn-info btn-lg">Зафиксировать мое местоположение</button>
+        <button type="button" onclick="deleteLast()" class="btn btn-dark btn-lg">Очистить последний маркер</button>
+        <button type="button" class="btn btn-dark btn-lg"><a class="navbar-brand" href="/here">вернуться</a></button>
 
-    <button type="button" id="butt" onclick="deleteAll()" class="btn btn-danger btn-lg">Очистить маркеры и линии</button>
-    <button type="button" id="butto" onclick="deleteLast()" class="btn btn-danger btn-lg">Очистить последний маркер</button>
+    </div>
+<!--    <button type="button" id="bt" onclick="getLocation()" class="btn btn-info btn-lg">Зафиксировать мое местоположение</button>-->
+
+<!--    <button type="button" id="butt" onclick="deleteAll()" class="btn btn-danger btn-lg">Очистить маркеры и линии</button>-->
+<!--    <button type="button" id="butto" onclick="deleteLast()" class="btn btn-danger btn-lg">Очистить последний маркер</button>-->
     <p id="demo" ></p>
 
     <div class="dropdown">

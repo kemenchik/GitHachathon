@@ -16,4 +16,15 @@ class MainControler {
         return "heremap.html";
     }
 
+    @GetMapping("/here")
+    public String showhere() {
+        return "All.html";
+    }
+
+    @GetMapping("/table")
+    public String showtable() {
+        return "table.html";
+    }
+
+
 }
